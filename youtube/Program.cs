@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using youtube.DataAccess.Data;
+using youtube.core.Entities;
 using youtube.Extentions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,9 +34,9 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-InitializeContext();
+await InitializeContext();
 app.Run();
-void InitializeContext()
+async Task InitializeContext()
 {
     // 1. بنعمل Scope مؤقت عشان نقدر نسحب الخدمات الـ Scoped بأمان
     using var scope = app.Services.CreateScope();
@@ -44,9 +46,11 @@ void InitializeContext()
     {
         // 2. بنسحب الـ Context بتاع قاعدة البيانات (استخدمنا GetRequiredService للأمان)
         var context = services.GetRequiredService<Context>();
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
 
         // 3. بنشغل كلاس الـ Initializer المسؤول عن الـ Migration والـ Seed بيانات
-        Contextintlizaer.Initialize();
+        await Contextintlizaer.Initialize(context, userManager, roleManager);
     }
     catch (Exception ex)
     {
