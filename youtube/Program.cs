@@ -46,7 +46,7 @@ void InitializeContext()
         var context = services.GetRequiredService<Context>();
 
         // 3. بنشغل كلاس الـ Initializer المسؤول عن الـ Migration والـ Seed بيانات
-        Contextintlizaer.Initialize(context);
+        Contextintlizaer.Initialize();
     }
     catch (Exception ex)
     {

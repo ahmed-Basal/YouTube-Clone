@@ -4,6 +4,10 @@ namespace UTlity
 {
     public static class SD
     {
+        public const string AdminRole = "Admin";
+        public const string ModerateRole = "Moderator";
+        public const string UserRole = "User";
+        public static readonly List<string> Roles = new List<string> { AdminRole, UserRole, ModerateRole };
 
         public static string IsActive(this IHtmlHelper html, string controller, string action, string cssClass = "active")
         {

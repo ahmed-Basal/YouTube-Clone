@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\UTlity\UTlity.csproj" />
     <ProjectReference Include="..\youtube.core\youtube.core.csproj" />
   </ItemGroup>
 
