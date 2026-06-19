@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/NewFolder1/" />
+  <Project Path="UTlity/UTlity.csproj" Id="9c62e240-1d51-4d2b-8dd9-665800a1b4d9" />
+  <Project Path="youtube.core/youtube.core.csproj" />
+  <Project Path="youtube.DataAccess/youtube.DataAccess.csproj" />
+  <Project Path="youtube/youtube.csproj" />
+</Solution>
