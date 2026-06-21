@@ -9,6 +9,7 @@ namespace youtube.core.IRepo
         IChannal Channal { get; }
         IVideoRepo Video { get; }
         ICategoryRepo Category { get; }
+        ICommentRepo Comment { get; }
        // IComment Comment { get; }
        // IVideo Video { get; }
        // IPlaylist Playlist { get; }

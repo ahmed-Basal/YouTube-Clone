@@ -18,6 +18,7 @@ namespace youtube.DataAccess.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Channal> Channals { get; set; }
         public DbSet<videos> videos { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

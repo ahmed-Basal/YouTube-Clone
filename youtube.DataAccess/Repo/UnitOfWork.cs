@@ -22,6 +22,8 @@ namespace youtube.DataAccess.Repo
 
         public ICategoryRepo Category => new CategoryRepo(_Context);
 
+        public ICommentRepo Comment => new CommentRepo(_Context);
+
         public async Task<bool> CompleteAsync()
         {
             bool result = false;

@@ -1,4 +1,4 @@
-﻿@using youtube.Extentions
+@using youtube.Extentions
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,6 +27,9 @@
                                 <ul class="navbar-nav flex-grow-1">
                                     <li class="nav-item">
                                         <a class="nav-link text-white @Html.IsActive("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white @Html.IsActive("Channal", "Index")" asp-area="" asp-controller="Channal" asp-action="Index">Channels</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link text-white @Html.IsActive("Home", "Privacy")" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -73,6 +76,7 @@
             &copy; 2026 - youtube - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    <partial name="_Notification" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

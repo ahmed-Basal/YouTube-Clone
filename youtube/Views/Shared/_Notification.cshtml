@@ -1,0 +1,191 @@
+@if (TempData["notification"] != null)
+{
+    var notificationParts = TempData["notification"].ToString().Split(';');
+    if (notificationParts.Length >= 3)
+    {
+        var status = notificationParts[0].Trim().ToLower();
+        var title = notificationParts[1];
+        var message = notificationParts[2];
+        var isShown = status == "true" || status == "success" || status == "error" || status == "warning" || status == "info";
+
+        if (isShown)
+        {
+            string iconClass = "bi-check-circle-fill";
+            string iconGradient = "linear-gradient(135deg, #10B981, #059669)"; // Default Green
+            string progressGradient = "linear-gradient(90deg, #10B981, #059669)";
+
+            if (status == "error")
+            {
+                iconClass = "bi-exclamation-circle-fill";
+                iconGradient = "linear-gradient(135deg, #EF4444, #DC2626)";
+                progressGradient = "linear-gradient(90deg, #EF4444, #DC2626)";
+            }
+            else if (status == "warning")
+            {
+                iconClass = "bi-exclamation-triangle-fill";
+                iconGradient = "linear-gradient(135deg, #F59E0B, #D97706)";
+                progressGradient = "linear-gradient(90deg, #F59E0B, #D97706)";
+            }
+            else if (status == "info")
+            {
+                iconClass = "bi-info-circle-fill";
+                iconGradient = "linear-gradient(135deg, #3B82F6, #2563EB)";
+                progressGradient = "linear-gradient(90deg, #3B82F6, #2563EB)";
+            }
+            else if (status == "true" || status == "success")
+            {
+                // Premium purple-pink gradient for successful channel creation
+                iconClass = "bi-patch-check-fill";
+                iconGradient = "linear-gradient(135deg, #7928CA, #FF007F)";
+                progressGradient = "linear-gradient(90deg, #7928CA, #B800FF)";
+            }
+
+            <div id="custom-toast" class="custom-toast-container hide-toast">
+                <div class="custom-toast-header">
+                    <div class="custom-toast-icon" style="background: @iconGradient; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi @iconClass"></i>
+                    </div>
+                    <div class="custom-toast-content">
+                        <h5 class="custom-toast-title">@title</h5>
+                        <p class="custom-toast-message">@message</p>
+                    </div>
+                    <button type="button" class="custom-toast-close" onclick="dismissToast()">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div class="custom-toast-progress" style="background: @progressGradient;"></div>
+            </div>
+
+            <style>
+                .custom-toast-container {
+                    position: fixed;
+                    bottom: 24px;
+                    right: 24px;
+                    min-width: 320px;
+                    max-width: 420px;
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border: 1px solid rgba(255, 255, 255, 0.4);
+                    border-radius: 16px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+                    z-index: 9999;
+                    overflow: hidden;
+                    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+                    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    transform: translateX(120%);
+                    opacity: 0;
+                }
+
+                .custom-toast-container.show-toast {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+
+                .custom-toast-container.hide-toast {
+                    transform: translateX(120%) scale(0.9);
+                    opacity: 0;
+                }
+
+                .custom-toast-header {
+                    display: flex;
+                    align-items: flex-start;
+                    padding: 18px 20px;
+                    gap: 14px;
+                }
+
+                .custom-toast-icon {
+                    font-size: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+
+                .custom-toast-content {
+                    flex-grow: 1;
+                    padding-right: 8px;
+                }
+
+                .custom-toast-title {
+                    margin: 0 0 4px 0;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    color: #0f172a;
+                }
+
+                .custom-toast-message {
+                    margin: 0;
+                    font-size: 0.875rem;
+                    color: #475569;
+                    line-height: 1.4;
+                }
+
+                .custom-toast-close {
+                    background: transparent;
+                    border: none;
+                    color: #94a3b8;
+                    font-size: 1.25rem;
+                    cursor: pointer;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: color 0.2s ease, transform 0.2s ease;
+                    flex-shrink: 0;
+                    margin-top: -2px;
+                }
+
+                .custom-toast-close:hover {
+                    color: #475569;
+                    transform: rotate(90deg);
+                }
+
+                .custom-toast-progress {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    height: 4px;
+                    width: 100%;
+                    transform-origin: left;
+                    animation: shrinkProgress 5s linear forwards;
+                }
+
+                @@keyframes shrinkProgress {
+                    to {
+                        transform: scaleX(0);
+                    }
+                }
+            </style>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const toast = document.getElementById("custom-toast");
+                    if (toast) {
+                        // Force a reflow to trigger the CSS transition
+                        toast.offsetHeight;
+                        toast.classList.remove("hide-toast");
+                        toast.classList.add("show-toast");
+
+                        // Auto dismiss after 5 seconds
+                        setTimeout(() => {
+                            dismissToast();
+                        }, 5000);
+                    }
+                });
+
+                function dismissToast() {
+                    const toast = document.getElementById("custom-toast");
+                    if (toast) {
+                        toast.classList.remove("show-toast");
+                        toast.classList.add("hide-toast");
+                        // Remove from DOM after the transition is complete
+                        setTimeout(() => {
+                            toast.remove();
+                        }, 500);
+                    }
+                }
+            </script>
+        }
+    }
+}

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using youtube.core.Entities;
+using youtube.core.IRepo;
 using youtube.DataAccess.Data;
+using youtube.DataAccess.Repo;
 
 namespace youtube.Extentions
 {
@@ -12,6 +14,7 @@ namespace youtube.Extentions
             builder.Services.AddDbContext<Context>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("youtube.DataAccess")));
+            builder.Services.AddScoped<IUnirOFWork, UnitOfWork>();
 
             builder.Services.AddIdentity<AppUser, AppRole>(options =>
             {
