@@ -10,7 +10,7 @@ using youtube.core.Entities;
 
 namespace youtube.DataAccess.Data
 {
-    public static   class Contextintlizaer
+    public static class Contextintlizaer
     {
         public static async Task Initialize(Context context, UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
         {
@@ -20,25 +20,68 @@ namespace youtube.DataAccess.Data
             }
 
             // Seed Roles
-            if (!context.Roles.Any())
+            foreach (var roleName in SD.Roles)
             {
-                foreach (var role in SD.Roles)
+                if (!await roleManager.RoleExistsAsync(roleName))
                 {
-                    await roleManager.CreateAsync(new AppRole { Name = role });
+                    var role = new AppRole { Name = roleName };
+                    var result = await roleManager.CreateAsync(role);
+                    if (!result.Succeeded)
+                    {
+                        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                        throw new Exception($"Failed to create role '{roleName}': {errors}");
+                    }
                 }
             }
 
-            // Seed Admin User
-            if (!userManager.Users.Any())
+            // Seed Users
+            try 
             {
-                var admin = new AppUser { 
-                    name="admin",
-                    Email="adminexample@gmail.com",
-                    UserName="admin"
-                };
+                if (await userManager.FindByEmailAsync("adminexample@gmail.com") == null)
+                {
+                    var admin = new AppUser
+                    {
+                        Name = "admin",
+                        Email = "adminexample@gmail.com",
+                        UserName = "admin"
+                    };
 
-                await userManager.CreateAsync(admin, "password123");
-                await userManager.AddToRolesAsync(admin, [SD.AdminRole, SD.UserRole, SD.ModerateRole]);
+                    await userManager.CreateAsync(admin, "password123");
+                    await userManager.AddToRolesAsync(admin, [SD.AdminRole, SD.UserRole, SD.ModerateRole]);
+                }
+
+                if (await userManager.FindByEmailAsync("johan@gmail.com") == null)
+                {
+                    var johan = new AppUser
+                    {
+                        Name = "johan",
+                        Email = "johan@gmail.com",
+                        UserName = "johan"
+                    };
+                    await userManager.CreateAsync(johan, "johan123");
+                    await userManager.AddToRoleAsync(johan, SD.UserRole);
+                }
+
+                if (await userManager.FindByEmailAsync("mary@gmail.com") == null && await userManager.FindByNameAsync("mary") == null)
+                {
+                    var mary = new AppUser
+                    {
+                        Name = "mary",
+                        Email = "mary@gmail.com",
+                        UserName = "mary",
+                        CreateAt = DateTime.UtcNow
+                    };
+                    var result = await userManager.CreateAsync(mary, "Mary@123");
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(mary, SD.ModerateRole);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // This will help capture errors in seeding specifically
+                throw new Exception("Error during user seeding", ex);
             }
         }
     }

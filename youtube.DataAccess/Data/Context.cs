@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,8 +11,6 @@ namespace youtube.DataAccess.Data
 {
     public class Context : IdentityDbContext<AppUser,AppRole,int>
     {
-        private Assembly assembly;
-
         public Context(DbContextOptions<Context>option):base(option)
         {
 

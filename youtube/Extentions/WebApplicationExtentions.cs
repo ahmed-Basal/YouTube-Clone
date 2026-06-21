@@ -1,25 +1,37 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using youtube.DataAccess.Data;
 using youtube.core.Entities;
+using youtube.DataAccess.Data;
 
 namespace youtube.Extentions
 {
     public static class WebApplicationExtentions
     {
-       public static  WebApplicationBuilder Applicationbuilder(this WebApplicationBuilder builder)
+        public static WebApplicationBuilder Applicationbuilder(this WebApplicationBuilder builder)
         {
             builder.Services.AddDbContext<Context>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-            b => b.MigrationsAssembly("youtube.DataAccess")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("youtube.DataAccess")));
 
-            builder.Services.AddIdentity<AppUser, AppRole>()
+            builder.Services.AddIdentity<AppUser, AppRole>(options =>
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
                 .AddEntityFrameworkStores<Context>()
                 .AddDefaultTokenProviders();
 
-             return builder;
-        }
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.ExpireTimeSpan = TimeSpan.FromHours(24);
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+            });
 
+            return builder;
+        }
     }
 }

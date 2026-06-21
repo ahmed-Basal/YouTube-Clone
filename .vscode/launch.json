@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/youtube/bin/Debug/net10.0/youtube.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/youtube",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "startDebugging",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s",
+                "launchConfigurationId": "Launch Brave"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Brave",
+            "url": "http://localhost:5242",
+            "webRoot": "${workspaceFolder}/youtube",
+            "runtimeExecutable": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+        }
+    ]
+}

@@ -10,8 +10,8 @@ namespace youtube.core.Entities
     public  class AppUser:IdentityUser<int>
     {
         [Required]
-        public string name { get; set; }
-        public DateTime createat { get; set; } = DateTime.UtcNow;
+        public string Name { get; set; }
+        public DateTime CreateAt { get; set; } = DateTime.UtcNow;
         public Channal channal { get; set; }
         public ICollection<Comment> coment { get; set; }
         public ICollection<SubScription> subScriptions { get; set;}
