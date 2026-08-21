@@ -1,0 +1,61 @@
+name: First Workflosadadadads
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  create-main-file:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Create main.yml file
+        run: |
+          mkdir -p .github/workflows
+          cat > main.yml << 'EOF'
+          name: Main Workflow
+          
+          on:
+            push:
+              branches:
+                - main
+          
+          jobs:
+            build:
+              runs-on: ubuntu-latest
+              
+              steps:
+                - name: Checkout code
+                  uses: actions/checkout@v4
+                
+                - name: Welcome Message
+                  run: echo "Welcome to Main Workflow!"
+          EOF
+      
+      - name: Verify file created
+        run: cat main.yml
+      
+      - name: List all files
+        run: ls -la
+      
+      - name: Git configuration
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      
+      - name: Commit and push
+        run: |
+          git add main.yml
+          git commit -m "Create main.yml" || echo "No changes to commit"
+          git push || echo "Push failed - may have no changes"
+      
+      - name: Success notification
+        run: |
+          echo "================================"
+          echo "✅ main.yml file created successfully!"
+          echo "================================"
