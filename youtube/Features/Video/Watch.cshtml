@@ -1,0 +1,421 @@
+@model youtube.viewmodels.VideoVm.VideoWatch_vm
+@using youtube.Helpers
+
+@{
+    ViewData["Title"] = $"{Model.Video.Title} - VidPulse";
+    var isYouTube = YouTubeHelper.IsYouTubeUrl(Model.Video.VideoUrl);
+    var embedUrl = isYouTube ? YouTubeHelper.GetEmbedUrl(Model.Video.VideoUrl) : null;
+    var watchOnYouTubeUrl = isYouTube ? YouTubeHelper.GetWatchUrl(Model.Video.VideoUrl) : null;
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Main Video Area (Left: 8 cols) -->
+        <div class="lg:col-span-8">
+            <!-- Player Container -->
+            <div class="w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-md border border-zinc-200 relative">
+                @if (isYouTube)
+                {
+                    <iframe class="w-full h-full border-0"
+                            src="@embedUrl"
+                            title="@Model.Video.Title"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                    </iframe>
+                }
+                else
+                {
+                    <video class="w-full h-full object-contain" controls autoplay poster="@Model.Video.ThumbnailUrl" playsinline>
+                        <source src="@Model.Video.VideoUrl" type="video/mp4">
+                        Your browser does not support HTML5 video playback.
+                    </video>
+                }
+            </div>
+
+            <!-- Video Title -->
+            <h1 class="text-xl sm:text-2xl font-bold text-zinc-900 mt-4 leading-snug">
+                @Model.Video.Title
+            </h1>
+
+            <!-- Channel & Actions Bar -->
+            <div class="mt-3.5 p-4 rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <!-- Channel Info & Subscribe -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-900 font-bold text-sm flex items-center justify-center shrink-0">
+                        @(Model.Channel != null && !string.IsNullOrEmpty(Model.Channel.Name) ? Model.Channel.Name[0].ToString().ToUpper() : "V")
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-sm text-zinc-900 leading-tight">@(Model.Channel?.Name ?? "Creator")</h2>
+                        <p class="text-xs text-zinc-500" id="subscribersCountText">@Model.SubscribersCount.ToString("N0") subscribers</p>
+                    </div>
+
+                    @if (Model.IsChannelOwner)
+                    {
+                        <a asp-controller="Video" asp-action="CreateEditVideo" asp-route-id="@Model.Video.Id" 
+                           class="ml-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 transition-colors">
+                            <i class="bi bi-pencil-square mr-1"></i> Edit Video
+                        </a>
+                    }
+                    else if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <button type="button" 
+                                class="ml-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all @(Model.IsSubscribed ? "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 border border-zinc-200" : "bg-black text-white hover:bg-zinc-800 shadow-sm")" 
+                                id="subscribeBtn" 
+                                onclick="toggleSubscribe(@(Model.Channel?.Id ?? 0))">
+                            <span id="subscribeBtnText">
+                                @if (Model.IsSubscribed) { <text><i class="bi bi-check2 mr-1"></i>Subscribed</text> } else { <text><i class="bi bi-bell-fill mr-1"></i>Subscribe</text> }
+                            </span>
+                        </button>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnurl="@Context.Request.Path" 
+                           class="ml-2 px-4 py-1.5 rounded-lg text-xs font-semibold bg-black text-white hover:bg-zinc-800 shadow-sm">
+                            <i class="bi bi-bell-fill mr-1"></i> Subscribe
+                        </a>
+                    }
+                </div>
+
+                <!-- Actions: Watch on YouTube Button + Likes + Share -->
+                <div class="flex items-center gap-2">
+                    @if (isYouTube)
+                    {
+                        <!-- Prominent "Watch on YouTube" (تروح لـ YouTube) Button -->
+                        <a href="@watchOnYouTubeUrl" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-sm transition-colors"
+                           title="Open and watch this video directly on YouTube">
+                            <i class="bi bi-youtube text-sm"></i>
+                            <span>Watch on YouTube</span>
+                            <i class="bi bi-arrow-up-right text-[10px]"></i>
+                        </a>
+                    }
+
+                    <!-- Like / Dislike Group -->
+                    <div class="inline-flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5">
+                        <button type="button" 
+                                class="px-3 py-1.5 text-xs font-semibold rounded-md flex items-center gap-1.5 transition-colors @(Model.IsLiked ? "bg-white text-black shadow-sm" : "text-zinc-600 hover:text-black")" 
+                                id="likeBtn" 
+                                onclick="toggleLike(@Model.Video.Id, true)">
+                            <i class="bi @(Model.IsLiked ? "bi-hand-thumbs-up-fill text-red-600" : "bi-hand-thumbs-up")"></i>
+                            <span id="likesCountText">@Model.LikesCount.ToString("N0")</span>
+                        </button>
+                        <span class="w-[1px] h-4 bg-zinc-200"></span>
+                        <button type="button" 
+                                class="px-2.5 py-1.5 text-xs font-semibold rounded-md flex items-center transition-colors @(Model.IsDisliked ? "bg-white text-black shadow-sm" : "text-zinc-600 hover:text-black")" 
+                                id="dislikeBtn" 
+                                onclick="toggleLike(@Model.Video.Id, false)">
+                            <i class="bi @(Model.IsDisliked ? "bi-hand-thumbs-down-fill text-zinc-900" : "bi-hand-thumbs-down")"></i>
+                            <span id="dislikesCountText" class="sr-only">@Model.DislikesCount</span>
+                        </button>
+                    </div>
+
+                    <!-- Share -->
+                    <button type="button" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 inline-flex items-center gap-1.5 transition-colors shadow-sm" 
+                            onclick="shareVideo()">
+                        <i class="bi bi-share"></i>
+                        <span>Share</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Description Box -->
+            <div class="mt-4 p-4 rounded-xl bg-white border border-zinc-200 shadow-sm text-sm">
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class="font-semibold text-zinc-900 text-xs">@Model.Video.Views.ToString("N0") views</span>
+                    <span class="text-zinc-400 text-xs">&bull; Published @Model.Video.CreatedAt.ToString("MMM d, yyyy")</span>
+                    @if (Model.Video.Category != null)
+                    {
+                        <span class="ml-auto inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-800">
+                            #@Model.Video.Category.Name
+                        </span>
+                    }
+                </div>
+                <div class="text-zinc-700 whitespace-pre-line leading-relaxed text-xs sm:text-sm">@Model.Video.Description</div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="mt-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-zinc-900 flex items-center gap-2" id="commentsCountHeader">
+                        <i class="bi bi-chat-left-text text-red-600"></i>
+                        <span>@Model.CommentsCount.ToString("N0") Comments</span>
+                    </h3>
+                </div>
+
+                <!-- Comment Input -->
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <div class="p-4 rounded-xl bg-white border border-zinc-200 shadow-sm mb-6">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                @User.Identity.Name?[0].ToString().ToUpper()
+                            </div>
+                            <div class="flex-1">
+                                <textarea id="commentInput" 
+                                          rows="2" 
+                                          placeholder="Join the discussion... Add a comment" 
+                                          class="w-full text-sm p-2.5 rounded-lg border border-zinc-200 focus:border-zinc-400 focus:outline-none transition-colors placeholder:text-zinc-400"></textarea>
+                                <div class="flex justify-end gap-2 mt-2" id="commentActions" style="display: none !important;">
+                                    <button type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-600 hover:bg-zinc-100" onclick="cancelComment()">
+                                        Cancel
+                                    </button>
+                                    <button type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-black text-white hover:bg-zinc-800 transition-colors shadow-sm" onclick="postComment(@Model.Video.Id)">
+                                        Comment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-between gap-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <i class="bi bi-chat-dots text-zinc-400 text-xl"></i>
+                            <div>
+                                <p class="text-xs font-semibold text-zinc-900">Sign in to participate</p>
+                                <p class="text-[11px] text-zinc-500">Leave a comment and like this clip.</p>
+                            </div>
+                        </div>
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnurl="@Context.Request.Path" 
+                           class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-black text-white hover:bg-zinc-800 transition-colors shadow-sm">
+                            Sign In
+                        </a>
+                    </div>
+                }
+
+                <!-- Comments List -->
+                <div id="commentsList" class="space-y-3">
+                    @if (Model.Comments != null && Model.Comments.Any())
+                    {
+                        foreach (var c in Model.Comments)
+                        {
+                            <div class="p-3.5 rounded-xl bg-white border border-zinc-200 shadow-sm" id="comment-@c.Id">
+                                <div class="flex gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 font-bold text-xs flex items-center justify-center shrink-0">
+                                        @(c.AppUser != null && !string.IsNullOrEmpty(c.AppUser.Name) ? c.AppUser.Name[0].ToString().ToUpper() : "U")
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-xs text-zinc-900">@(c.AppUser?.Name ?? c.AppUser?.UserName ?? "User")</span>
+                                                <span class="text-[11px] text-zinc-400">&bull; @c.PostAt.ToString("MMM d, yyyy")</span>
+                                            </div>
+                                            @if (Model.CurrentUserId.HasValue && (Model.CurrentUserId.Value == c.AppUserId || Model.IsChannelOwner))
+                                            {
+                                                <button class="text-zinc-400 hover:text-red-600 transition-colors p-1" title="Delete Comment" onclick="deleteComment(@c.Id)">
+                                                    <i class="bi bi-trash3 text-xs"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                        <p class="text-xs text-zinc-700 mt-1 whitespace-pre-wrap leading-relaxed">@c.Content</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-8 text-zinc-400 text-xs" id="noCommentsText">
+                            <i class="bi bi-chat-square-dots text-2xl d-block mb-1 opacity-50"></i>
+                            No comments yet. Be the first to share your thoughts!
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Clips Sidebar (Right: 4 cols) -->
+        <div class="lg:col-span-4">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-1.5">
+                <i class="bi bi-lightning-charge-fill text-red-600"></i> Up Next
+            </h2>
+
+            <div class="space-y-3">
+                @if (Model.RelatedVideos != null && Model.RelatedVideos.Any())
+                {
+                    foreach (var rel in Model.RelatedVideos)
+                    {
+                        var isRelYt = YouTubeHelper.IsYouTubeUrl(rel.VideoUrl);
+                        var relThumb = string.IsNullOrEmpty(rel.ThumbnailUrl)
+                            ? (isRelYt ? YouTubeHelper.GetThumbnailUrl(rel.VideoUrl) : "https://placehold.co/320x180")
+                            : rel.ThumbnailUrl;
+
+                        <a href="/Video/Watch/@rel.Id" class="group flex gap-3 p-2 rounded-xl bg-white border border-zinc-200 hover:border-zinc-300 hover:shadow-sm transition-all">
+                            <div class="relative w-36 aspect-video rounded-lg overflow-hidden bg-zinc-100 shrink-0 border border-zinc-100">
+                                <img src="@relThumb" alt="@rel.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                @if (isRelYt)
+                                {
+                                    <span class="absolute bottom-1 right-1 px-1 py-0.2 bg-black/80 text-white text-[9px] font-bold rounded">YT</span>
+                                }
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-semibold text-xs text-zinc-900 group-hover:text-red-600 transition-colors line-clamp-2 leading-snug">
+                                    @rel.Title
+                                </h3>
+                                <p class="text-[11px] text-zinc-500 mt-1 truncate">@(rel.Channal?.Name ?? "Creator")</p>
+                                <p class="text-[10px] text-zinc-400">@rel.Views.ToString("N0") views</p>
+                            </div>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="p-6 text-center text-zinc-400 text-xs bg-white rounded-xl border border-zinc-200">
+                        No other clips available right now.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#commentInput').on('focus', function () {
+            $('#commentActions').removeAttr('style');
+        });
+
+        function cancelComment() {
+            $('#commentInput').val('');
+            $('#commentActions').attr('style', 'display: none !important;');
+        }
+
+        function toggleLike(videoId, isLike) {
+            @if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                <text>
+                    window.location.href = '/Account/Login?returnurl=' + encodeURIComponent(window.location.pathname);
+                    return;
+                </text>
+            }
+
+            $.ajax({
+                url: '/Video/ToggleLike',
+                type: 'POST',
+                data: { videoId: videoId, isLike: isLike },
+                success: function (res) {
+                    if (res.success) {
+                        $('#likesCountText').text(res.likesCount.toLocaleString());
+                        
+                        if (res.isLiked) {
+                            $('#likeBtn').addClass('bg-white text-black shadow-sm').removeClass('text-zinc-600');
+                            $('#likeBtn i').removeClass('bi-hand-thumbs-up').addClass('bi-hand-thumbs-up-fill text-red-600');
+                        } else {
+                            $('#likeBtn').removeClass('bg-white text-black shadow-sm').addClass('text-zinc-600');
+                            $('#likeBtn i').removeClass('bi-hand-thumbs-up-fill text-red-600').addClass('bi-hand-thumbs-up');
+                        }
+
+                        if (res.isDisliked) {
+                            $('#dislikeBtn').addClass('bg-white text-black shadow-sm').removeClass('text-zinc-600');
+                            $('#dislikeBtn i').removeClass('bi-hand-thumbs-down').addClass('bi-hand-thumbs-down-fill text-zinc-900');
+                        } else {
+                            $('#dislikeBtn').removeClass('bg-white text-black shadow-sm').addClass('text-zinc-600');
+                            $('#dislikeBtn i').removeClass('bi-hand-thumbs-down-fill text-zinc-900').addClass('bi-hand-thumbs-down');
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleSubscribe(channelId) {
+            $.ajax({
+                url: '/Video/ToggleSubscribe',
+                type: 'POST',
+                data: { channelId: channelId },
+                success: function (res) {
+                    if (res.success) {
+                        $('#subscribersCountText').text(res.subscribersCount.toLocaleString() + ' subscribers');
+                        if (res.isSubscribed) {
+                            $('#subscribeBtn').removeClass('bg-black text-white').addClass('bg-zinc-100 text-zinc-700 border border-zinc-200');
+                            $('#subscribeBtnText').html('<i class="bi bi-check2 mr-1"></i>Subscribed');
+                        } else {
+                            $('#subscribeBtn').addClass('bg-black text-white').removeClass('bg-zinc-100 text-zinc-700 border border-zinc-200');
+                            $('#subscribeBtnText').html('<i class="bi bi-bell-fill mr-1"></i>Subscribe');
+                        }
+                    }
+                }
+            });
+        }
+
+        function postComment(videoId) {
+            const content = $('#commentInput').val().trim();
+            if (!content) return;
+
+            $.ajax({
+                url: '/Video/AddComment',
+                type: 'POST',
+                data: { videoId: videoId, content: content },
+                success: function (res) {
+                    if (res.success) {
+                        $('#commentInput').val('');
+                        $('#commentActions').attr('style', 'display: none !important;');
+                        $('#noCommentsText').remove();
+
+                        const c = res.comment;
+                        const initial = c.authorName ? c.authorName[0].toUpperCase() : 'U';
+                        const newCommentHtml = `
+                            <div class="p-3.5 rounded-xl bg-white border border-zinc-200 shadow-sm" id="comment-${c.id}">
+                                <div class="flex gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 font-bold text-xs flex items-center justify-center shrink-0">
+                                        ${initial}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-xs text-zinc-900">${c.authorName}</span>
+                                                <span class="text-[11px] text-zinc-400">&bull; ${c.date}</span>
+                                            </div>
+                                            <div>
+                                                <button class="text-zinc-400 hover:text-red-600 transition-colors p-1" title="Delete Comment" onclick="deleteComment(${c.id})">
+                                                    <i class="bi bi-trash3 text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-zinc-700 mt-1 whitespace-pre-wrap leading-relaxed">${escapeHtml(c.content)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        $('#commentsList').prepend(newCommentHtml);
+                    }
+                }
+            });
+        }
+
+        function deleteComment(commentId) {
+            if (!confirm('Are you sure you want to delete this comment?')) return;
+
+            $.ajax({
+                url: '/Video/DeleteComment/' + commentId,
+                type: 'POST',
+                success: function (res) {
+                    if (res.success) {
+                        $('#comment-' + commentId).fadeOut(200, function () { $(this).remove(); });
+                    }
+                }
+            });
+        }
+
+        function shareVideo() {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.href).then(function () {
+                    alert('VidPulse clip link copied to clipboard!');
+                });
+            } else {
+                prompt('Copy clip link:', window.location.href);
+            }
+        }
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+    </script>
+}

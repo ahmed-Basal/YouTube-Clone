@@ -1,7 +1,11 @@
 <Solution>
-  <Folder Name="/NewFolder1/" />
-  <Project Path="UTlity/UTlity.csproj" Id="9c62e240-1d51-4d2b-8dd9-665800a1b4d9" />
-  <Project Path="youtube.core/youtube.core.csproj" />
-  <Project Path="youtube.DataAccess/youtube.DataAccess.csproj" />
+  <Folder Name="/Modules/">
+    <Project Path="Modules/Users/youtube.Modules.Users.csproj" />
+    <Project Path="Modules/Channels/youtube.Modules.Channels.csproj" />
+    <Project Path="Modules/Videos/youtube.Modules.Videos.csproj" />
+    <Project Path="Modules/Interactions/youtube.Modules.Interactions.csproj" />
+    <Project Path="Modules/Administration/youtube.Modules.Administration.csproj" />
+  </Folder>
+  <Project Path="youtube.SharedKernel/youtube.SharedKernel.csproj" />
   <Project Path="youtube/youtube.csproj" />
 </Solution>

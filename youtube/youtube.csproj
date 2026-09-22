@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -6,6 +6,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
   <ItemGroup>
+	<PackageReference Include="CloudinaryDotNet" Version="1.29.3" />
+	<PackageReference Include="MediatR" Version="14.2.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.9" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
@@ -15,7 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\youtube.DataAccess\youtube.DataAccess.csproj" />
+	<ProjectReference Include="..\youtube.SharedKernel\youtube.SharedKernel.csproj" />
+	<ProjectReference Include="..\Modules\Users\youtube.Modules.Users.csproj" />
+	<ProjectReference Include="..\Modules\Channels\youtube.Modules.Channels.csproj" />
+	<ProjectReference Include="..\Modules\Videos\youtube.Modules.Videos.csproj" />
+	<ProjectReference Include="..\Modules\Interactions\youtube.Modules.Interactions.csproj" />
+	<ProjectReference Include="..\Modules\Administration\youtube.Modules.Administration.csproj" />
   </ItemGroup>
-
 </Project>

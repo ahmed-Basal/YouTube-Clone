@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="14.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\youtube.SharedKernel\youtube.SharedKernel.csproj" />
+    <ProjectReference Include="..\Users\youtube.Modules.Users.csproj" />
+    <ProjectReference Include="..\Channels\youtube.Modules.Channels.csproj" />
+    <ProjectReference Include="..\Videos\youtube.Modules.Videos.csproj" />
+    <ProjectReference Include="..\Interactions\youtube.Modules.Interactions.csproj" />
+  </ItemGroup>
+
+</Project>

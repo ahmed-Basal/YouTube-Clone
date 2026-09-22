@@ -318,7 +318,7 @@ namespace youtube.DataAccess.Migrations
 
                     b.HasIndex("ChannalId");
 
-                    b.ToTable("SubScription");
+                    b.ToTable("Subscriptions");
                 });
 
             modelBuilder.Entity("youtube.core.Entities.likesDislikes", b =>
@@ -336,7 +336,7 @@ namespace youtube.DataAccess.Migrations
 
                     b.HasIndex("VideoId");
 
-                    b.ToTable("likesDislikes");
+                    b.ToTable("LikesDislikes");
                 });
 
             modelBuilder.Entity("youtube.core.Entities.videos", b =>
@@ -367,6 +367,13 @@ namespace youtube.DataAccess.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VideoUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

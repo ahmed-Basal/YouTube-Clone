@@ -1,13 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using youtube.DataAccess.Data;
-using youtube.core.Entities;
 using youtube.Extentions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+builder.Services.AddControllersWithViews()
+    .AddRazorRuntimeCompilation()
+    .AddRazorOptions(options =>
+    {
+        options.ViewLocationExpanders.Add(new youtube.Extentions.FeatureViewLocationExpander());
+    });
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(20);
@@ -51,11 +54,13 @@ async Task InitializeContext()
 
     try
     {
-        var context = services.GetRequiredService<Context>();
-        var userManager = services.GetRequiredService<UserManager<AppUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+        var usersContext = services.GetRequiredService<youtube.Modules.Users.Data.UsersDbContext>();
+        var channelsContext = services.GetRequiredService<youtube.Modules.Channels.Data.ChannelsDbContext>();
+        var videosContext = services.GetRequiredService<youtube.Modules.Videos.Data.VideosDbContext>();
+        var userManager = services.GetRequiredService<UserManager<youtube.Modules.Users.Entities.AppUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<youtube.Modules.Users.Entities.AppRole>>();
 
-        await Contextintlizaer.Initialize(context, userManager, roleManager);
+        await youtube.DatabaseInitializer.InitializeAsync(usersContext, channelsContext, videosContext, userManager, roleManager);
     }
     catch (Exception ex)
     {

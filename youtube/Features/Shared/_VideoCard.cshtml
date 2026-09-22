@@ -1,0 +1,74 @@
+@model youtube.viewmodels.VideoCard_vm
+@using youtube.Helpers
+
+@{
+    var isYouTube = YouTubeHelper.IsYouTubeUrl(Model.VideoUrl);
+    var watchUrl = isYouTube ? YouTubeHelper.GetWatchUrl(Model.VideoUrl) : Model.VideoUrl;
+    var thumbUrl = string.IsNullOrEmpty(Model.ThumbnailUrl) 
+        ? (isYouTube ? YouTubeHelper.GetThumbnailUrl(Model.VideoUrl) : "https://placehold.co/640x360?text=Clip") 
+        : Model.ThumbnailUrl;
+}
+
+<div class="group flex flex-col bg-white rounded-xl border border-zinc-200 hover:border-zinc-300 hover:shadow-md transition-all overflow-hidden">
+    <!-- Thumbnail Container -->
+    <a href="/Video/Watch/@Model.Id" class="relative block w-full aspect-video bg-zinc-100 overflow-hidden">
+        <img src="@thumbUrl" 
+             alt="@Model.Title" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             loading="lazy" />
+
+        <!-- Overlay play indicator -->
+        <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div class="w-11 h-11 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                <i class="bi bi-play-fill text-xl ml-0.5"></i>
+            </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+            @if (isYouTube)
+            {
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-sm text-white text-[11px] font-semibold border border-white/10">
+                    <i class="bi bi-youtube text-red-500"></i> YouTube
+                </span>
+            }
+            @if (Model.Category != null)
+            {
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white/90 backdrop-blur-sm text-zinc-900 text-[11px] font-medium border border-zinc-200">
+                    @Model.Category.Name
+                </span>
+            }
+        </div>
+    </a>
+
+    <!-- Card Content -->
+    <div class="p-3.5 flex gap-3">
+        <!-- Channel Avatar -->
+        <div class="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-900 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+            @(Model.Channal != null && !string.IsNullOrEmpty(Model.Channal.Name) ? Model.Channal.Name[0].ToString().ToUpper() : "V")
+        </div>
+
+        <!-- Meta -->
+        <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-sm text-zinc-900 leading-snug line-clamp-2 group-hover:text-red-600 transition-colors" title="@Model.Title">
+                <a href="/Video/Watch/@Model.Id">@Model.Title</a>
+            </h3>
+
+            <div class="text-xs text-zinc-500 mt-1 flex items-center gap-1.5 truncate">
+                <span class="font-medium text-zinc-700">@(Model.Channal?.Name ?? "Creator")</span>
+            </div>
+
+            <div class="text-[11px] text-zinc-400 mt-1 flex items-center justify-between">
+                <span>@Model.Views.ToString("N0") views &bull; @Model.CreatedAt.ToString("MMM d, yyyy")</span>
+
+                @if (isYouTube)
+                {
+                    <a href="@watchUrl" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:text-red-700 font-medium inline-flex items-center gap-0.5 hover:underline" title="Watch on YouTube">
+                        <span>Open YT</span>
+                        <i class="bi bi-arrow-up-right text-[9px]"></i>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

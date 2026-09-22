@@ -1,0 +1,487 @@
+@model youtube.viewmodels.account.ChannelAddEdit_vm
+@{
+    ViewData["Title"] = "Creator Studio - VidPulse";
+}
+
+<style>
+    .studio-hero {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffffff 60%, #f8fafc 100%);
+        border: 1px solid #fee2e2;
+        border-radius: 18px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .studio-avatar {
+        width: 68px;
+        height: 68px;
+        border-radius: 18px;
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.8rem;
+    }
+
+    .studio-nav-pills .nav-link {
+        color: #475569;
+        background: #f1f5f9;
+        font-weight: 600;
+        border-radius: 50px;
+        padding: 0.55rem 1.4rem;
+        transition: all 0.2s ease;
+        border: 1px solid #e2e8f0;
+    }
+
+    .studio-nav-pills .nav-link:hover {
+        color: #0f172a;
+        background: #e2e8f0;
+    }
+
+    .studio-nav-pills .nav-link.active {
+        background: #0f172a;
+        color: #ffffff;
+        border-color: #0f172a;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+    }
+
+    .table-dark-custom {
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: #f8fafc;
+        color: #1e293b;
+        margin-bottom: 0;
+    }
+
+    .table-dark-custom th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0.85rem 0.75rem;
+    }
+
+    .table-dark-custom td {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 0.85rem 0.75rem;
+        vertical-align: middle;
+        color: #1e293b;
+    }
+
+    .sortBy {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .sortBy:hover {
+        color: #dc2626 !important;
+    }
+
+    .preview-thumb {
+        width: 90px;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s ease;
+    }
+
+    .preview-thumb:hover {
+        transform: scale(1.04);
+    }
+</style>
+
+<div class="container-fluid px-lg-5 py-4">
+    @if (string.IsNullOrEmpty(Model.Name) || Model.Errors.Count > 0)
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-9">
+                <div class="card border shadow-sm rounded-4 bg-white p-4 p-md-5 animate-fade-in-up">
+                    <div class="text-center mb-4">
+                        <div class="brand-logo-icon mx-auto mb-3" style="width: 56px; height: 56px; border-radius: 18px;">
+                            <i class="bi bi-broadcast fs-2 text-white"></i>
+                        </div>
+                        <h2 class="fw-bold text-dark mb-2">Create Your Creator Channel</h2>
+                        <p class="text-secondary">Start sharing clips, building an audience, and broadcasting your pulse to the world.</p>
+                    </div>
+
+                    <form asp-action="CreateChannel" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label text-dark fw-semibold">Channel Handle / Name</label>
+                            <input asp-for="Name" type="text" class="form-control form-control-lg" placeholder="e.g. CodeMaster or GamingVibes" />
+                            <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="About" class="form-label text-dark fw-semibold">Channel Bio / Description</label>
+                            <textarea asp-for="About" rows="5" class="form-control" placeholder="Tell viewers what your channel is all about..."></textarea>
+                            <span asp-validation-for="About" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn-brand py-3 fs-6" type="submit">
+                                <i class="bi bi-stars"></i> Launch Channel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Channel Studio Hero -->
+        <div class="studio-hero d-flex flex-wrap align-items-center justify-content-between gap-3 animate-fade-in-up">
+            <div class="d-flex align-items-center gap-3">
+                <div class="studio-avatar">
+                    @Model.Name[0].ToString().ToUpper()
+                </div>
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">@Model.Name</h2>
+                    <div class="d-flex align-items-center gap-3 text-secondary small">
+                        <span><i class="bi bi-people-fill text-danger me-1"></i> @Model.SubscribersCount.ToString("N0") Subscribers</span>
+                        <span>&bull;</span>
+                        <span class="text-truncate" style="max-width: 400px;">@Model.About</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a class="btn-brand" asp-controller="Video" asp-action="CreateEditVideo">
+                    <i class="bi bi-cloud-arrow-up-fill"></i> Upload Clip
+                </a>
+            </div>
+        </div>
+
+        <!-- Studio Tabs -->
+        <ul class="nav studio-nav-pills gap-2 mb-4">
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#myvideos">
+                    <i class="bi bi-film me-1"></i> Video Content
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#analytics">
+                    <i class="bi bi-graph-up-arrow me-1"></i> Analytics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#profile">
+                    <i class="bi bi-gear-fill me-1"></i> Channel Settings
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Videos Tab -->
+            <div class="tab-pane fade" id="myvideos">
+                <div class="card border shadow-sm rounded-4 bg-white overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-dark-custom">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Clip</th>
+                                    <th class="sortBy" data-value="title">
+                                        <span>Title</span>
+                                        <span id="titleSortBy"></span>
+                                    </th>
+                                    <th class="sortBy" data-value="date">
+                                        <span>Date</span>
+                                        <span id="dateSortBy"></span>
+                                    </th>
+                                    <th class="sortBy" data-value="views">
+                                        <span>Views</span>
+                                        <span id="viewsSortBy"></span>
+                                    </th>
+                                    <th class="sortBy" data-value="comments">
+                                        <span>Comments</span>
+                                        <span id="commentsSortBy"></span>
+                                    </th>
+                                    <th class="sortBy" data-value="likes">
+                                        <span>Likes</span>
+                                        <span id="likesSortBy"></span>
+                                    </th>
+                                    <th class="sortBy" data-value="dislikes">
+                                        <span>Dislikes</span>
+                                        <span id="dislikesSortBy"></span>
+                                    </th>
+                                    <th class="sortBy" data-value="category">
+                                        <span>Category</span>
+                                        <span id="categorySortBy"></span>
+                                    </th>
+                                    <th class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="videosTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between p-3 border-top">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="dropdown" id="itemsPerPageDropdown">
+                                <button class="btn btn-sm btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Rows: <span id="itemsPerPageDisplay">5</span>
+                                </button>
+                                <ul class="dropdown-menu glass-dropdown-menu">
+                                    <li><button type="button" class="dropdown-item glass-dropdown-item pageSizeBtn" data-value="5">5</button></li>
+                                    <li><button type="button" class="dropdown-item glass-dropdown-item pageSizeBtn" data-value="10">10</button></li>
+                                    <li><button type="button" class="dropdown-item glass-dropdown-item pageSizeBtn" data-value="20">20</button></li>
+                                    <li><button type="button" class="dropdown-item glass-dropdown-item pageSizeBtn" data-value="50">50</button></li>
+                                </ul>
+                            </div>
+                            <span class="text-muted small" id="paginationSummery"></span>
+                        </div>
+
+                        <div id="paginationBtnGroup" class="btn-group"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-pane fade" id="analytics">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card border shadow-sm rounded-4 bg-white p-4">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="brand-logo-icon" style="width: 42px; height: 42px;">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Total Subscribers</div>
+                                    <h3 class="fw-bold text-dark mb-0">@Model.SubscribersCount.ToString("N0")</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border shadow-sm rounded-4 bg-white p-4">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="brand-logo-icon" style="width: 42px; height: 42px; background: linear-gradient(135deg, #06b6d4, #3b82f6);">
+                                    <i class="bi bi-play-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Channel Health</div>
+                                    <h3 class="fw-bold text-dark mb-0">Active Pulse</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border shadow-sm rounded-4 bg-white p-4">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="brand-logo-icon" style="width: 42px; height: 42px; background: linear-gradient(135deg, #10b981, #059669);">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Status</div>
+                                    <h3 class="fw-bold text-dark mb-0">Verified Creator</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Channel Settings Profile Tab -->
+            <div class="tab-pane fade" id="profile">
+                <div class="card border shadow-sm rounded-4 bg-white p-4 p-md-5" style="max-width: 680px;">
+                    <h4 class="fw-bold text-dark mb-4">Edit Channel Information</h4>
+                    <form asp-action="EditChannel" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label text-dark small fw-semibold">Channel Handle / Name</label>
+                            <input id="profile_name" asp-for="Name" type="text" class="form-control form-control-lg" disabled />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="About" class="form-label text-dark small fw-semibold">About / Bio</label>
+                            <textarea id="profile_about" asp-for="About" type="text" class="form-control" rows="5" disabled></textarea>
+                            <span asp-validation-for="About" class="text-danger small"></span>
+                        </div>
+
+                        <div id="divEditButton">
+                            <button type="button" class="btn btn-glass px-4" onclick="editProfile()">
+                                <i class="bi bi-pencil-square me-1"></i> Edit Profile
+                            </button>
+                        </div>
+
+                        <div class="d-flex gap-2" id="updateProfileButtons" style="display: none !important;">
+                            <button class="btn btn-brand px-4" type="submit">Save Changes</button>
+                            <button class="btn btn-glass px-4" type="button" onclick="cancelEdit()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let pageNumber = 1;
+        let pageSize = 5;
+        let sortBy = '';
+
+        $(function () {
+            $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var currentTabId = $(e.target).attr('href');
+                localStorage.setItem('activeTab', currentTabId);
+            });
+
+            var activeTab = localStorage.getItem('activeTab');
+            if (activeTab) {
+                $('a[href="' + activeTab + '"]').tab('show');
+            } else {
+                $('a[href="#myvideos"]').tab('show');
+            }
+
+            getMyVideos();
+        });
+
+        function getMyVideos() {
+            const parameters = { pageNumber, pageSize, sortBy };
+
+            $.ajax({
+                url: "/Video/GetVideosForChannelGrid",
+                type: "GET",
+                data: parameters,
+                success: function (data) {
+                    const result = data.result;
+
+                    $('#videosTableBody').empty();
+                    $('#paginationSummery').empty();
+                    $('#paginationBtnGroup').empty();
+                    $('#itemsPerPageDisplay').empty();
+
+                    populateVideoTableBody(result.items);
+
+                    if (result.totalItemsCount > 0) {
+                        $('#itemsPerPageDisplay').text(pageSize);
+
+                        const from = (result.pageNumber - 1) * result.pageSize + 1;
+                        const to = result.pageNumber * result.pageSize > result.totalItemsCount ? result.totalItemsCount : result.pageNumber * result.pageSize;
+                        $('#paginationSummery').text(`${from}-${to} of ${result.totalItemsCount} clips`);
+
+                        let firstPageBtn = `<button type="button" class="btn btn-glass btn-sm paginationBtn" ${result.pageNumber == 1 ? 'disabled' : ''} data-value="1" title="First Page"><i class="bi bi-chevron-bar-left"></i></button>`;
+                        $('#paginationBtnGroup').append(firstPageBtn);
+
+                        let previousePageBtn = `<button type="button" class="btn btn-glass btn-sm paginationBtn" ${result.pageNumber == 1 ? 'disabled' : ''} data-value="${result.pageNumber - 1}" title="Previous Page"><i class="bi bi-chevron-left"></i></button>`;
+                        $('#paginationBtnGroup').append(previousePageBtn);
+
+                        let nextPageBtn = `<button type="button" class="btn btn-glass btn-sm paginationBtn" ${result.pageNumber == result.totalPages ? 'disabled' : ''} data-value="${result.pageNumber + 1}" title="Next Page"><i class="bi bi-chevron-right"></i></button>`;
+                        $('#paginationBtnGroup').append(nextPageBtn);
+
+                        let lastPageBtn = `<button type="button" class="btn btn-glass btn-sm paginationBtn" ${result.pageNumber == result.totalPages ? 'disabled' : ''} data-value="${result.totalPages}" title="Last Page"><i class="bi bi-chevron-bar-right"></i></button>`;
+                        $('#paginationBtnGroup').append(lastPageBtn);
+
+                        $('.paginationBtn').click(function () {
+                            pageNumber = $(this).data('value');
+                            getMyVideos();
+                        });
+                    } else {
+                        $('#itemsPerPageDropdown').hide();
+                    }
+                }
+            });
+        }
+
+        $('.pageSizeBtn').click(function () {
+            pageSize = $(this).data('value');
+            getMyVideos();
+        });
+
+        $('.sortBy').click(function () {
+            const sortByValue = $(this).data('value');
+            const $sortBySpan = $('#' + sortByValue + 'SortBy');
+            const $i = $sortBySpan.find('i');
+
+            if ($i.hasClass('bi-arrow-up-short')) {
+                $sortBySpan.empty();
+                $sortBySpan.append('<i class="bi bi-arrow-down-short text-danger"></i>');
+                sortBy = sortByValue + '-d';
+            } else if ($i.hasClass('bi-arrow-down-short')) {
+                $sortBySpan.empty();
+                sortBy = '';
+            } else {
+                $sortBySpan.empty();
+                $sortBySpan.append('<i class="bi bi-arrow-up-short text-danger"></i>');
+                sortBy = sortByValue + '-a';
+            }
+
+            removeAllOtherArrows(sortByValue);
+            getMyVideos();
+        });
+
+        function removeAllOtherArrows(exception) {
+            ['title', 'date', 'views', 'comments', 'likes', 'dislikes', 'category'].forEach(val => {
+                if (val !== exception) $('#' + val + 'SortBy').empty();
+            });
+        }
+
+        function populateVideoTableBody(videos) {
+            let trTag = '';
+
+            if (videos.length > 0) {
+                videos.map((v, index) => {
+                    trTag += '<tr>';
+                    trTag += `<td class="text-muted small">${index + 1}</td>`;
+                    trTag += `<td><a href="/Video/Watch/${v.id}"><img src="${v.thumbnailUrl}" class="preview-thumb shadow-sm" alt="${v.title}" /></a></td>`;
+                    trTag += `<td><a href="/Video/Watch/${v.id}" class="text-white fw-bold text-decoration-none">${v.title}</a></td>`;
+                    trTag += `<td class="text-secondary small">${new Date(v.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>`;
+                    trTag += `<td><span class="badge bg-danger-subtle text-danger border border-danger-subtle">${v.views.toLocaleString()}</span></td>`;
+                    trTag += `<td class="text-secondary">${v.comments.toLocaleString()}</td>`;
+                    trTag += `<td class="text-success"><i class="bi bi-hand-thumbs-up me-1"></i>${v.likes.toLocaleString()}</td>`;
+                    trTag += `<td class="text-muted"><i class="bi bi-hand-thumbs-down me-1"></i>${v.dislikes.toLocaleString()}</td>`;
+                    trTag += `<td><span class="badge bg-secondary">${v.categoryName}</span></td>`;
+                    trTag += '<td class="text-end">';
+                    trTag += `<a href="/Video/CreateEditVideo/${v.id}" class="btn btn-sm btn-glass me-1 text-warning" title="Edit"><i class="bi bi-pencil"></i></a>`;
+                    trTag += `<button class="btn btn-sm btn-glass text-danger" onclick="deleteVideo(${v.id}, '${v.title.replace(/'/g, "\\'")}')" title="Delete"><i class="bi bi-trash3"></i></button>`;
+                    trTag += '</td>';
+                    trTag += '</tr>';
+                });
+            } else {
+                trTag = '<tr><td colspan="10" class="text-center py-4 text-muted">No clips uploaded yet in your channel.</td></tr>';
+            }
+
+            $('#videosTableBody').append(trTag);
+        }
+
+        function editProfile() {
+            $('#updateProfileButtons').removeAttr('style');
+            $('#profile_name').prop("disabled", false);
+            $('#profile_about').prop("disabled", false);
+            $('#divEditButton').hide();
+        }
+
+        function cancelEdit() {
+            $('#divEditButton').show();
+            $('#updateProfileButtons').attr('style', 'display: none !important;');
+            $('#profile_name').val('@Model.Name');
+            $('#profile_about').val('@Model.About');
+            $('#profile_name').prop("disabled", true);
+            $('#profile_about').prop("disabled", true);
+        }
+
+        async function deleteVideo(id, name) {
+            if (confirm('Are you sure you want to remove clip: ' + name + '?')) {
+                $.ajax({
+                    url: "/Video/DeleteVideo/" + id,
+                    type: "DELETE",
+                    success: function (data) {
+                        displayNotification(data.isSuccess, data.title, data.message, 'modal');
+                        getMyVideos();
+                    }
+                });
+            }
+        }
+    </script>
+}

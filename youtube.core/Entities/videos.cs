@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,6 +14,9 @@ namespace youtube.core.Entities
         public string Title { get; set; }
         [Required]
         public string Description { get; set; }
+        [Required]
+        public string VideoUrl { get; set; }
+        public int Views { get; set; } = 0;
 
         public int CategoryId { get; set; }
         public int ChannelId { get; set; }

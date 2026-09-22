@@ -1,0 +1,36 @@
+{
+  "$schema": "https://vzoro.dev/schemas/v2/layout.json",
+  "version": "2.0.0",
+  "metadata": {
+    "name": "First",
+    "createdAt": "2026-09-22T08:36:34.677Z",
+    "updatedAt": "2026-09-22T08:36:34.677Z",
+    "databaseName": "offline-db"
+  },
+  "canvas": {
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
+    },
+    "settings": {
+      "layoutName": "First",
+      "canvasBgColor": "#181818",
+      "canvasGridVariant": "dots",
+      "showForeignKeyEdges": true,
+      "showIndexConstraints": true,
+      "fkConstraintPattern": "FK_[table]_[FK_Name]",
+      "defaultEdgeColor": "#60a5fa",
+      "edgeRouting": "smoothstep"
+    }
+  },
+  "nodes": [],
+  "edges": [],
+  "offlineSchema": {
+    "databaseName": "offline-db",
+    "schemas": [
+      "public"
+    ],
+    "tables": []
+  }
+}

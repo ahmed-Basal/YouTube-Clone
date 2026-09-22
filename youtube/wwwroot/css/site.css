@@ -1,43 +1,162 @@
+:root {
+  /* Clean Human-Designed Light Theme Palette */
+  --bg-main: #f9fafb;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --bg-input: #f8fafc;
+  --bg-pill: #f1f5f9;
+  --bg-pill-hover: #e2e8f0;
+
+  --border-color: #e5e7eb;
+  --border-subtle: #f1f5f9;
+  --border-focus: #dc2626;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  --brand-red: #cc0000;
+  --brand-red-hover: #b30000;
+  --brand-red-light: #fef2f2;
+  --brand-red-border: #fecaca;
+
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 2px 6px -1px rgba(0, 0, 0, 0.06), 0 1px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+  font-size: 15px;
+  scroll-behavior: smooth;
 }
 
 body {
-  margin-bottom: 60px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  letter-spacing: -0.01em;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.navbar-brand {
-    color: palegreen;
-    font-family: cursive;
-    font-size: 1.5rem;
+@keyframes popBounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+  100% { transform: scale(1); }
 }
-   .navbar-brand:hover{
-    color:palegreen;
-    }
-.active{
-    color:darkorange!important;
+
+.animate-fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Light Surface Cards */
+.light-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.light-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-hover);
+}
+
+/* Clean Brand Buttons */
+.btn-brand-red {
+  background-color: var(--brand-red);
+  color: #ffffff !important;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  padding: 0.55rem 1.4rem;
+  font-size: 0.925rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(204, 0, 0, 0.2);
+}
+
+.btn-brand-red:hover {
+  background-color: var(--brand-red-hover);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(204, 0, 0, 0.3);
+}
+
+.btn-light-pill {
+  background-color: #f1f5f9;
+  color: #334155 !important;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  border-radius: 50px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-light-pill:hover {
+  background-color: #e2e8f0;
+  color: #0f172a !important;
+  border-color: #cbd5e1;
+}
+
+/* Light Form Controls */
+.form-control, .form-select {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #ffffff !important;
+  border-color: var(--brand-red) !important;
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.12) !important;
+  color: #0f172a !important;
+}
+
+.form-control::placeholder {
+  color: #94a3b8 !important;
 }

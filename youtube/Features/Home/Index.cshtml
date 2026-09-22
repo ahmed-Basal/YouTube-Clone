@@ -1,0 +1,145 @@
+@model youtube.viewmodels.HomeFeed_vm
+@using youtube.Helpers
+@{
+    ViewData["Title"] = "Discover Videos & Streams";
+    var featuredVideo = Model.Videos != null && Model.Videos.Any() ? Model.Videos.First() : null;
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Featured Hero Spotlight (Shown when on Home without search query) -->
+    @if (string.IsNullOrWhiteSpace(Model.SearchQuery) && !Model.ActiveCategoryId.HasValue && featuredVideo != null)
+    {
+        var isYt = YouTubeHelper.IsYouTubeUrl(featuredVideo.VideoUrl);
+        var watchUrl = isYt ? YouTubeHelper.GetWatchUrl(featuredVideo.VideoUrl) : $"/Video/Watch/{featuredVideo.Id}";
+
+        <div class="mb-8 p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200 shadow-sm relative overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-200 mb-3">
+                        <i class="bi bi-fire"></i>
+                        <span>Featured Spotlight</span>
+                    </div>
+
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight leading-tight">
+                        @featuredVideo.Title
+                    </h1>
+
+                    <p class="text-sm text-zinc-500 mt-2 line-clamp-3 max-w-xl leading-relaxed">
+                        @featuredVideo.Description
+                    </p>
+
+                    <div class="mt-6 flex flex-wrap items-center gap-3">
+                        <a href="/Video/Watch/@featuredVideo.Id" 
+                           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors shadow-sm">
+                            <i class="bi bi-play-fill text-lg"></i>
+                            <span>Watch Now</span>
+                        </a>
+
+                        @if (isYt)
+                        {
+                            <a href="@watchUrl" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-sm font-semibold border border-zinc-200 transition-colors">
+                                <i class="bi bi-youtube text-red-600"></i>
+                                <span>Watch on YouTube</span>
+                                <i class="bi bi-arrow-up-right text-xs ml-0.5"></i>
+                            </a>
+                        }
+
+                        <span class="text-xs text-zinc-400 font-medium ml-2">
+                            @(featuredVideo.Views.ToString("N0")) views &bull; @(featuredVideo.Channal?.Name ?? "Creator")
+                        </span>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5">
+                    <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow border border-zinc-200 bg-zinc-950 group">
+                        <img src="@(string.IsNullOrEmpty(featuredVideo.ThumbnailUrl) ? "https://placehold.co/640x360" : featuredVideo.ThumbnailUrl)" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                             alt="Featured Thumbnail" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3.5">
+                            @if (isYt)
+                            {
+                                <span class="px-2 py-0.5 rounded bg-red-600 text-white text-xs font-bold inline-flex items-center gap-1">
+                                    <i class="bi bi-youtube"></i> YouTube Video
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="px-2 py-0.5 rounded bg-black/80 text-white text-xs font-bold">
+                                    Cloudinary Stream
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Category Pills Filter Bar -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none">
+        <a href="@Url.Action("Index", "Home", new { search = Model.SearchQuery })" 
+           class="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all @(!Model.ActiveCategoryId.HasValue ? "bg-black text-white shadow-sm" : "bg-white text-zinc-700 hover:bg-zinc-100 border border-zinc-200")">
+            All Topics
+        </a>
+        @foreach (var cat in Model.Categories)
+        {
+            var isActive = Model.ActiveCategoryId == cat.Id;
+            <a href="@Url.Action("Index", "Home", new { categoryId = cat.Id, search = Model.SearchQuery })" 
+               class="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all @(isActive ? "bg-black text-white shadow-sm" : "bg-white text-zinc-700 hover:bg-zinc-100 border border-zinc-200")">
+                @cat.Name
+            </a>
+        }
+    </div>
+
+    <!-- Active Search Filter Heading -->
+    @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+    {
+        <div class="flex items-center justify-between pb-3 mb-6 border-b border-zinc-200">
+            <h2 class="text-lg font-bold text-zinc-900">
+                Search results for <span class="text-red-600">"@Model.SearchQuery"</span>
+            </h2>
+            <a href="@Url.Action("Index", "Home")" class="text-xs font-semibold text-zinc-500 hover:text-zinc-900 inline-flex items-center gap-1">
+                <i class="bi bi-x-circle"></i> Clear filter
+            </a>
+        </div>
+    }
+
+    <!-- Modular Videos Grid using _VideoCard -->
+    @if (Model.Videos != null && Model.Videos.Any())
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            @foreach (var video in Model.Videos)
+            {
+                <partial name="_VideoCard" model="video" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="bg-white rounded-2xl border border-zinc-200 p-12 text-center max-w-lg mx-auto my-8 shadow-sm">
+            <div class="w-14 h-14 rounded-2xl bg-zinc-100 text-zinc-500 flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="bi bi-camera-reels"></i>
+            </div>
+            <h3 class="text-lg font-bold text-zinc-900">No Videos Found</h3>
+            <p class="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
+                @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+                {
+                    <text>No clips matched your search query. Try another keyword or reset the filter.</text>
+                }
+                else
+                {
+                    <text>No clips have been published in this category yet. Be the first to share content or import a YouTube video!</text>
+                }
+            </p>
+            <div class="mt-6">
+                <a asp-controller="Video" asp-action="CreateEditVideo" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black text-white text-xs font-semibold hover:bg-zinc-800 transition-colors">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Publish or Import Video</span>
+                </a>
+            </div>
+        </div>
+    }
+</div>

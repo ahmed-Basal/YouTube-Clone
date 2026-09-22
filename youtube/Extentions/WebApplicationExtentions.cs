@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using youtube.core.Entities;
-using youtube.core.IRepo;
-using youtube.DataAccess.Data;
-using youtube.DataAccess.Repo;
+using MediatR;
+using youtube.Modules.Users;
+using youtube.Modules.Channels;
+using youtube.Modules.Videos;
+using youtube.Modules.Interactions;
+using youtube.Modules.Administration;
+using youtube.SharedKernel;
 
 namespace youtube.Extentions
 {
@@ -11,27 +14,31 @@ namespace youtube.Extentions
     {
         public static WebApplicationBuilder Applicationbuilder(this WebApplicationBuilder builder)
         {
-            builder.Services.AddDbContext<Context>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("youtube.DataAccess")));
-            builder.Services.AddScoped<IUnirOFWork, UnitOfWork>();
+            // Register Modular Monolith Modules
+            builder.Services.AddUsersModule(builder.Configuration);
+            builder.Services.AddChannelsModule(builder.Configuration);
+            builder.Services.AddVideosModule(builder.Configuration);
+            builder.Services.AddInteractionsModule(builder.Configuration);
+            builder.Services.AddAdministrationModule(builder.Configuration);
 
-            builder.Services.AddIdentity<AppUser, AppRole>(options =>
-            {
-                options.Password.RequiredLength = 6;
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-            })
-                .AddEntityFrameworkStores<Context>()
-                .AddDefaultTokenProviders();
+            builder.Services.AddMediatR(cfg => 
+                cfg.RegisterServicesFromAssembly(typeof(WebApplicationExtentions).Assembly));
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.ExpireTimeSpan = TimeSpan.FromHours(24);
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
+            });
+
+            // 100 MB max upload request body size configuration
+            builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 104857600; // 100 MB
+            });
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.Limits.MaxRequestBodySize = 104857600; // 100 MB
             });
 
             return builder;

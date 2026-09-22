@@ -19,6 +19,8 @@ namespace youtube.DataAccess.Data
         public DbSet<Channal> Channals { get; set; }
         public DbSet<videos> videos { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<SubScription> Subscriptions { get; set; }
+        public DbSet<likesDislikes> LikesDislikes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
