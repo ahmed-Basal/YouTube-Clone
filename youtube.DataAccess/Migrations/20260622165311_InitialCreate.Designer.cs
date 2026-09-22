@@ -12,8 +12,8 @@ using youtube.DataAccess.Data;
 namespace youtube.DataAccess.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20260619211050_UpdateSchema")]
-    partial class UpdateSchema
+    [Migration("20260622165311_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,7 +144,6 @@ namespace youtube.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -177,6 +176,9 @@ namespace youtube.DataAccess.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -189,6 +191,10 @@ namespace youtube.DataAccess.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -217,13 +223,6 @@ namespace youtube.DataAccess.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<DateTime>("createat")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -245,6 +244,9 @@ namespace youtube.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
@@ -259,7 +261,6 @@ namespace youtube.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("About")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("AppUserId")
@@ -269,7 +270,6 @@ namespace youtube.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -292,7 +292,6 @@ namespace youtube.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("PostAt")
@@ -307,7 +306,7 @@ namespace youtube.DataAccess.Migrations
 
                     b.HasIndex("VideoId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("youtube.core.Entities.SubScription", b =>
@@ -521,8 +520,7 @@ namespace youtube.DataAccess.Migrations
 
             modelBuilder.Entity("youtube.core.Entities.AppUser", b =>
                 {
-                    b.Navigation("channal")
-                        .IsRequired();
+                    b.Navigation("channal");
 
                     b.Navigation("coment");
 

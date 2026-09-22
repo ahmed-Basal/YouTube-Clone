@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using UTlity;
 using youtube.core.Entities;
 using youtube.viewmodels.account;
-using UTlity;
 
 namespace youtube.Controllers
 {
@@ -72,23 +72,41 @@ namespace youtube.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Login_vm login)
         {
+            // 1. التأكد من صحة الـ Validations الأساسية للموديل
             if (!ModelState.IsValid)
             {
                 return View(login);
             }
 
-            var user = await _userManger.FindByNameAsync(login.UserName) ?? await _userManger.FindByEmailAsync(login.UserName);
+            // حماية إضافية للتأكد من أن الحقل ليس فارغاً قبل البحث
+            if (string.IsNullOrEmpty(login.UserName))
+            {
+                ModelState.AddModelError(string.Empty, "Username or Email is required.");
+                return View(login);
+            }
+
+            // 2. البحث أولاً عن طريق اسم المستخدم
+            var user = await _userManger.FindByNameAsync(login.UserName);
+
+            // 3. إذا لم يجده باسم المستخدم، يبحث عنه عن طريق الإيميل
+            if (user == null)
+            {
+                user = await _userManger.FindByEmailAsync(login.UserName);
+            }
+
+            // 4. إذا لم يجد المستخدم في الحالتين
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid username or password");
                 return View(login);
             }
 
-            var result = await _signuser.CheckPasswordSignInAsync(user, login.Password, lockoutOnFailure: false);
+            // 5. تسجيل الدخول الفعلي باستخدام PasswordSignInAsync (بإعطائه الـ UserName الحقيقي من قاعدة البيانات)
+            var result = await _signuser.PasswordSignInAsync(user.UserName, login.Password, isPersistent: false, lockoutOnFailure: false);
+
             if (result.Succeeded)
             {
-                await SignInUserAsync(user);
-
+                // 6. التوجيه الآمن (إذا كان هناك رابط عودة محلي)
                 if (!string.IsNullOrEmpty(login.ReturnUrl) && Url.IsLocalUrl(login.ReturnUrl))
                 {
                     return Redirect(login.ReturnUrl);
@@ -97,9 +115,13 @@ namespace youtube.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // 7. إذا فشل تسجيل الدخول (كلمة المرور خاطئة مثلاً)
             ModelState.AddModelError(string.Empty, "Invalid username or password");
             return View(login);
         }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> Logout()

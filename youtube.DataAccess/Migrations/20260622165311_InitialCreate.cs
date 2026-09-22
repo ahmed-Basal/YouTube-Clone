@@ -17,8 +17,8 @@ namespace youtube.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -33,8 +33,8 @@ namespace youtube.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    createat = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -60,7 +60,8 @@ namespace youtube.DataAccess.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1")
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -179,8 +180,8 @@ namespace youtube.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    About = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    About = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AppUserId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -250,27 +251,27 @@ namespace youtube.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Comment",
+                name: "Comments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AppUserId = table.Column<int>(type: "int", nullable: false),
                     VideoId = table.Column<int>(type: "int", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PostAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Comment", x => x.Id);
+                    table.PrimaryKey("PK_Comments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Comment_AspNetUsers_AppUserId",
+                        name: "FK_Comments_AspNetUsers_AppUserId",
                         column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Comment_videos_VideoId",
+                        name: "FK_Comments_videos_VideoId",
                         column: x => x.VideoId,
                         principalTable: "videos",
                         principalColumn: "Id",
@@ -348,13 +349,13 @@ namespace youtube.DataAccess.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comment_AppUserId",
-                table: "Comment",
+                name: "IX_Comments_AppUserId",
+                table: "Comments",
                 column: "AppUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comment_VideoId",
-                table: "Comment",
+                name: "IX_Comments_VideoId",
+                table: "Comments",
                 column: "VideoId");
 
             migrationBuilder.CreateIndex(
@@ -397,7 +398,7 @@ namespace youtube.DataAccess.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Comment");
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "likesDislikes");
